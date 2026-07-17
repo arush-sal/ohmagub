@@ -73,6 +73,14 @@ install_bin() { # install_bin <url> <name>
 # GitHub arch string for release assets.
 gh_arch() { case "$(uname -m)" in x86_64) echo amd64 ;; aarch64) echo arm64 ;; *) echo amd64 ;; esac; }
 
+# Never block on a credential prompt during install — fail fast instead.
+export GIT_TERMINAL_PROMPT=0
+# Clone/fetch a PUBLIC repo hermetically: ignore the user's global git config so
+# their `insteadOf` https->SSH rewrite can't force credentials. Use for every
+# internal clone. GIT_NO_GLOBAL is the prefix for tools that shell out to git.
+export GIT_NO_GLOBAL="GIT_CONFIG_GLOBAL=/dev/null"
+git_public() { GIT_CONFIG_GLOBAL=/dev/null git "$@"; }
+
 # ---------------------------------------------------------------------------
 # GNOME helpers (no-op off-desktop)
 # ---------------------------------------------------------------------------

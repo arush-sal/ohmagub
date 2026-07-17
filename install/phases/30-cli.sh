@@ -50,7 +50,7 @@ apt_install tmux
 if [ ! -d "$HOME/.tmux/.git" ]; then
   step "installing gpakosz/.tmux"
   rm -rf "$HOME/.tmux"
-  git clone --depth=1 https://github.com/gpakosz/.tmux.git "$HOME/.tmux" >/dev/null 2>&1
+  git_public clone --depth=1 https://github.com/gpakosz/.tmux.git "$HOME/.tmux" >/dev/null 2>&1
 fi
 ln -sf "$HOME/.tmux/.tmux.conf" "$HOME/.tmux.conf"
 [ -e "$HOME/.tmux.conf.local" ] || ln -sf "$HOME/.tmux/.tmux.conf.local" "$HOME/.tmux.conf.local"

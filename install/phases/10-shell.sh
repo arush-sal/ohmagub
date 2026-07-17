@@ -18,7 +18,7 @@ apt_install zsh
 # --- oh-my-zsh (unattended; don't clobber a .zshrc if one is already here) ---
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
   step "installing oh-my-zsh"
-  RUNZSH=no CHSH=no KEEP_ZSHRC=yes \
+  RUNZSH=no CHSH=no KEEP_ZSHRC=yes GIT_CONFIG_GLOBAL=/dev/null \
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 else
   ok "oh-my-zsh present"
@@ -27,7 +27,7 @@ fi
 # --- zsh-autosuggestions (your plugins list needs it) -----------------------
 ZCUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 if [ ! -d "$ZCUSTOM/plugins/zsh-autosuggestions" ]; then
-  git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions \
+  git_public clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions \
     "$ZCUSTOM/plugins/zsh-autosuggestions" >/dev/null 2>&1
   ok "zsh-autosuggestions installed"
 else
@@ -37,7 +37,7 @@ fi
 # --- fzf via junegunn (generates ~/.fzf.zsh that your env.zsh sources) -------
 if [ ! -d "$HOME/.fzf" ]; then
   step "installing fzf (junegunn)"
-  git clone --depth=1 https://github.com/junegunn/fzf.git "$HOME/.fzf" >/dev/null 2>&1
+  git_public clone --depth=1 https://github.com/junegunn/fzf.git "$HOME/.fzf" >/dev/null 2>&1
   "$HOME/.fzf/install" --all --no-bash --no-fish >/dev/null 2>&1
   ok "fzf installed"
 else

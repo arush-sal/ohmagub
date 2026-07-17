@@ -19,7 +19,7 @@ REPO="$OHMAGUB_DOTFILES_PATH"
 if [ ! -d "$REPO/.git" ]; then
   step "cloning dotfiles -> $REPO"
   mkdir -p "$(dirname "$REPO")"
-  git clone "$OHMAGUB_DOTFILES_REPO" "$REPO"
+  git_public clone "$OHMAGUB_DOTFILES_REPO" "$REPO"
 else
   step "updating dotfiles ($REPO)"
   git -C "$REPO" pull --ff-only 2>/dev/null || warn "dotfiles pull skipped (local changes / non-ff)"
@@ -53,7 +53,9 @@ if [ -d "$REPO/usr/local/bin" ]; then
   ok "synced usr/local/bin scripts"
 fi
 
-# --- HTTPS -> SSH rewrite (after clone, per setup.sh:324) -------------------
-git config --global url."git@github.com:".insteadOf "https://github.com/"
+# Note: the HTTPS->SSH rewrite comes from your synced .gitconfig
+# ([url "git@github.com:"] insteadOf = https://github.com/). We do NOT set it
+# here, and ohmagub's own clones use git_public (GIT_CONFIG_GLOBAL=/dev/null)
+# so the rest of the install stays credential-free on a fresh machine.
 
 ok "Phase dotfiles complete"

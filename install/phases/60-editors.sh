@@ -17,14 +17,16 @@ apt_install vim-gtk3
 
 if [ ! -d "$HOME/.vim/bundle/Vundle.vim" ]; then
   step "cloning Vundle"
-  git clone --depth=1 https://github.com/VundleVim/Vundle.vim.git "$HOME/.vim/bundle/Vundle.vim" >/dev/null 2>&1
+  git_public clone --depth=1 https://github.com/VundleVim/Vundle.vim.git "$HOME/.vim/bundle/Vundle.vim" >/dev/null 2>&1
 fi
 if [ -f "$HOME/.vimrc" ]; then
+  # GIT_CONFIG_GLOBAL=/dev/null: Vundle git-clones each plugin from GitHub;
+  # without this your .gitconfig insteadOf would force SSH (credentials).
   step "vim +PluginInstall"
-  vim +PluginInstall +qall! </dev/null >/dev/null 2>&1 || warn "vim PluginInstall had issues"
+  GIT_CONFIG_GLOBAL=/dev/null vim +PluginInstall +qall! </dev/null >/dev/null 2>&1 || warn "vim PluginInstall had issues"
   if has go; then
     step "vim +GoInstallBinaries"
-    vim +GoInstallBinaries +qall! </dev/null >/dev/null 2>&1 || warn "GoInstallBinaries skipped (vim-go not present?)"
+    GIT_CONFIG_GLOBAL=/dev/null vim +GoInstallBinaries +qall! </dev/null >/dev/null 2>&1 || warn "GoInstallBinaries skipped (vim-go not present?)"
   fi
   ok "vim configured"
 else
@@ -34,8 +36,8 @@ fi
 # --- vim for root (faithful to setup.sh:318-319) ---------------------------
 if [ -f "$HOME/.vimrc" ]; then
   sudo cp "$HOME/.vimrc" /root/.vimrc
-  sudo test -d /root/.vim/bundle/Vundle.vim || sudo git clone --depth=1 https://github.com/VundleVim/Vundle.vim.git /root/.vim/bundle/Vundle.vim >/dev/null 2>&1
-  sudo vim +PluginInstall +qall! </dev/null >/dev/null 2>&1 || warn "root vim PluginInstall had issues"
+  sudo test -d /root/.vim/bundle/Vundle.vim || sudo env GIT_CONFIG_GLOBAL=/dev/null git clone --depth=1 https://github.com/VundleVim/Vundle.vim.git /root/.vim/bundle/Vundle.vim >/dev/null 2>&1
+  sudo env GIT_CONFIG_GLOBAL=/dev/null vim +PluginInstall +qall! </dev/null >/dev/null 2>&1 || warn "root vim PluginInstall had issues"
   ok "root vim configured"
 fi
 

@@ -92,7 +92,7 @@ if ! has gh; then
 fi
 for ext in "${OHMAGUB_GH_EXTENSIONS[@]}"; do
   step "gh extension: $ext"
-  gh extension install "$ext" >/dev/null 2>&1 || warn "  $ext skipped (needs 'gh auth login' or already installed)"
+  GIT_CONFIG_GLOBAL=/dev/null gh extension install "$ext" >/dev/null 2>&1 || warn "  $ext skipped (needs 'gh auth login' or already installed)"
 done
 
 # ---------------------------------------------------------------------------
