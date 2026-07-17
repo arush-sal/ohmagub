@@ -73,6 +73,21 @@ install_bin() { # install_bin <url> <name>
 # GitHub arch string for release assets.
 gh_arch() { case "$(uname -m)" in x86_64) echo amd64 ;; aarch64) echo arm64 ;; *) echo amd64 ;; esac; }
 
+# Install the latest .deb from a GitHub repo whose asset name matches a regex.
+install_release_deb() {
+  # install_release_deb <owner/repo> <asset-regex> <human name>
+  local repo="$1" pat="$2" name="$3" url
+  # '|| true' guards the head/SIGPIPE + no-match cases under set -o pipefail.
+  url="$(curl -fsSL "https://api.github.com/repos/$repo/releases/latest" \
+        | jq -r '.assets[].browser_download_url' | grep -E "$pat" | head -1 || true)"
+  if [ -n "$url" ]; then
+    install_deb "$url"
+    ok "$name installed"
+  else
+    warn "$name: no release .deb matching /$pat/ (arch unsupported? rate-limited?)"
+  fi
+}
+
 # Never block on a credential prompt during install — fail fast instead.
 export GIT_TERMINAL_PROMPT=0
 # Clone/fetch a PUBLIC repo hermetically: ignore the user's global git config so

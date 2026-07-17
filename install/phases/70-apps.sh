@@ -50,6 +50,22 @@ install_app() {
     feh)     apt_install feh; ok "feh" ;;
     terminator) apt_install terminator; ok "terminator" ;;
     blueman) apt_install blueman; ok "blueman" ;;
+    localsend)
+      # asset naming: LocalSend-<ver>-linux-x86-64.deb / -linux-arm-64.deb
+      if ! is_installed localsend; then
+        case "$(uname -m)" in
+          x86_64)  install_release_deb localsend/localsend 'linux-x86-64\.deb$' LocalSend ;;
+          aarch64) install_release_deb localsend/localsend 'linux-arm-64\.deb$' LocalSend ;;
+          *)       warn "localsend: unsupported arch $(uname -m)" ;;
+        esac
+      else ok "localsend present"; fi
+      ;;
+    obsidian)
+      # asset naming: obsidian_<ver>_amd64.deb (no arm64 .deb published)
+      if ! is_installed obsidian; then
+        install_release_deb obsidianmd/obsidian-releases "_$(gh_arch)\.deb$" Obsidian
+      else ok "obsidian present"; fi
+      ;;
     *) warn "no installer for app '$1'" ;;
   esac
 }

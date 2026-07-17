@@ -22,11 +22,11 @@ if [ "${OHMAGUB_INSTALL_DOCKER:-1}" = "1" ]; then
   else
     ok "docker present"
   fi
-  if ! id -nG "$USER" | tr ' ' '\n' | grep -qx docker; then
-    sudo groupadd -f docker
-    sudo usermod -aG docker "$USER"
-    warn "added $USER to docker group — log out/in to use docker without sudo"
-  fi
+  # Add the invoking user to the docker group (idempotent; -aG is a no-op if
+  # already a member). Takes effect on next login.
+  sudo groupadd -f docker
+  sudo usermod -aG docker "$(whoami)"
+  warn "added $(whoami) to the docker group — log out/in to use docker without sudo"
   sudo systemctl enable --now docker >/dev/null 2>&1 || true
 fi
 

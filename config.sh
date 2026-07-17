@@ -54,7 +54,7 @@ OHMAGUB_GH_EXTENSIONS=(
 )
 
 # --- desktop apps (phase 70) ------------------------------------------------
-OHMAGUB_DESKTOP_APPS=( chrome slack vlc deluge tilda gpaste )
+OHMAGUB_DESKTOP_APPS=( chrome slack vlc deluge tilda gpaste localsend obsidian )
 
 # --- GNOME / tiling / workspaces (phase 80) --------------------------------
 export OHMAGUB_INSTALL_DESKTOP=1
