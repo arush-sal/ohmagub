@@ -86,9 +86,12 @@ if [ -f "$HOME/.bashrc" ]; then
 fi
 
 # --- expose the ohmagub CLI on PATH -----------------------------------------
-mkdir -p "$HOME/.local/bin"
 chmod +x "$OHMAGUB_PATH/bin/ohmagub" "$OHMAGUB_PATH/boot.sh" "$OHMAGUB_PATH/install.sh" 2>/dev/null || true
+# /usr/local/bin is on PATH by default, so `ohmagub` works immediately (no
+# re-login needed). Also mirror into ~/.local/bin for good measure.
+sudo ln -sf "$OHMAGUB_PATH/bin/ohmagub" /usr/local/bin/ohmagub
+mkdir -p "$HOME/.local/bin"
 ln -sf "$OHMAGUB_PATH/bin/ohmagub" "$HOME/.local/bin/ohmagub"
-ok "ohmagub CLI linked -> ~/.local/bin/ohmagub"
+ok "ohmagub CLI linked -> /usr/local/bin/ohmagub"
 
 ok "Phase preflight complete"

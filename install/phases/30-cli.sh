@@ -21,8 +21,10 @@ if ! has bin; then
     aarch64) pat="Linux_arm64" ;;
     *)       pat="Linux_x86_64" ;;
   esac
+  # '|| true': head closes the pipe early -> SIGPIPE upstream -> with pipefail
+  # the pipeline reports failure even on success, which would abort the phase.
   url="$(curl -fsSL https://api.github.com/repos/marcosnils/bin/releases/latest \
-        | jq -r '.assets[].browser_download_url' | grep "$pat" | head -1)"
+        | jq -r '.assets[].browser_download_url' | grep "$pat" | head -1 || true)"
   if [ -n "$url" ]; then
     install_bin "$url" bin
     ok "bin installed"

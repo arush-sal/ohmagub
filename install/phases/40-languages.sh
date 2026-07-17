@@ -27,7 +27,7 @@ mkdir -p "$HOME/go/bin"
 export NVM_DIR="$HOME/.nvm"
 if [ ! -s "$NVM_DIR/nvm.sh" ]; then
   step "installing nvm"
-  nvm_tag="$(curl -fsSL https://api.github.com/repos/nvm-sh/nvm/releases/latest | jq -r .tag_name 2>/dev/null)"
+  nvm_tag="$(curl -fsSL https://api.github.com/repos/nvm-sh/nvm/releases/latest | jq -r .tag_name 2>/dev/null || true)"
   [ -n "$nvm_tag" ] && [ "$nvm_tag" != "null" ] || nvm_tag="v0.40.1"
   curl -fsSL "https://raw.githubusercontent.com/nvm-sh/nvm/${nvm_tag}/install.sh" | GIT_CONFIG_GLOBAL=/dev/null bash
 fi

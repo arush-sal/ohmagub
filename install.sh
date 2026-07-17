@@ -59,10 +59,28 @@ main() {
   case "$target" in
     all)
       ensure_sudo
-      local f
-      for f in $(core_phases); do run_phase_file "$f"; done
-      echo; ok "ohmagub: all phases complete."
+      local f name rc failed=()
+      for f in $(core_phases); do
+        name="$(basename "$f" .sh)"
+        rc=0
+        run_phase_file "$f" || rc=$?
+        if [ "$rc" -ne 0 ]; then
+          echo
+          err "PHASE FAILED: $name (exit $rc) — continuing with the remaining phases"
+          err "  fix it, then re-run just this phase:  ohmagub phase $name"
+          echo
+          failed+=("$name")
+        fi
+      done
+      echo
+      if [ ${#failed[@]} -eq 0 ]; then
+        ok "ohmagub: all phases complete."
+      else
+        err "ohmagub finished, but ${#failed[@]} phase(s) FAILED: ${failed[*]}"
+        err "re-run each after fixing, e.g.:  ohmagub phase ${failed[0]}"
+      fi
       echo "${_c_dim}   Log out and back in for shell, docker group, and GNOME extensions to take effect.${_c_reset}"
+      [ ${#failed[@]} -eq 0 ] || exit 1
       ;;
     list|--list|-l) list_phases ;;
     *)
