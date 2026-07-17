@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+#
+# ohmagub — manage your setup.
+#   ohmagub install            run all phases (full setup)
+#   ohmagub phase <name|num>   run a single phase (idempotent)
+#   ohmagub phases             list phases
+#   ohmagub update             git pull, then re-run all phases
+#   ohmagub version | help
+
+set -euo pipefail
+SELF="$(readlink -f "${BASH_SOURCE[0]}")"
+export OHMAGUB_PATH="$(cd "$(dirname "$SELF")/.." && pwd)"
+
+usage() {
+  sed -n '3,9p' "$SELF" | sed 's/^# \{0,1\}//'
+  echo
+  bash "$OHMAGUB_PATH/install.sh" list
+}
+
+main() {
+  local cmd="${1:-help}"; shift || true
+  case "$cmd" in
+    install)        bash "$OHMAGUB_PATH/install.sh" all ;;
+    phase)          [ $# -ge 1 ] || { echo "usage: ohmagub phase <name|num>"; exit 1; }; bash "$OHMAGUB_PATH/install.sh" "$1" ;;
+    phases|list)    bash "$OHMAGUB_PATH/install.sh" list ;;
+    update)         git -C "$OHMAGUB_PATH" pull --ff-only && bash "$OHMAGUB_PATH/install.sh" all ;;
+    version|-v|--version) echo "ohmagub $(git -C "$OHMAGUB_PATH" describe --tags --always 2>/dev/null || echo dev)" ;;
+    help|-h|--help) usage ;;
+    *) echo "unknown command: $cmd" >&2; usage; exit 1 ;;
+  esac
+}
+main "$@"

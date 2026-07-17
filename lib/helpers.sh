@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# omagub :: lib/helpers.sh — shared, idempotent helpers sourced by every phase.
+# ohmagub :: lib/helpers.sh — shared, idempotent helpers sourced by every phase.
 
 # ---------------------------------------------------------------------------
 # Pretty output
@@ -24,22 +24,22 @@ die()  { err "$*"; exit 1; }
 # ---------------------------------------------------------------------------
 has()          { command -v "$1" >/dev/null 2>&1; }
 is_installed() { dpkg -s "$1" >/dev/null 2>&1; }
-is_desktop()   { [ "${OMAGUB_INSTALL_DESKTOP:-1}" = "1" ] && has gnome-shell; }
+is_desktop()   { [ "${OHMAGUB_INSTALL_DESKTOP:-1}" = "1" ] && has gnome-shell; }
 
 # The invoking (non-root) user's home, even when a step uses sudo.
 user_home()    { echo "$HOME"; }
 
 # ---------------------------------------------------------------------------
 # sudo — warm up once, keep alive in the background for the whole run.
-# Children inherit OMAGUB_SUDO_READY so they don't spawn duplicate keep-alives.
+# Children inherit OHMAGUB_SUDO_READY so they don't spawn duplicate keep-alives.
 # ---------------------------------------------------------------------------
 ensure_sudo() {
-  [ "${OMAGUB_SUDO_READY:-}" = "1" ] && return 0
-  [ "$(id -u)" -eq 0 ] && die "Run omagub as your normal user, not root — it uses sudo where needed."
-  if ! sudo -v; then die "omagub needs sudo to install packages."; fi
+  [ "${OHMAGUB_SUDO_READY:-}" = "1" ] && return 0
+  [ "$(id -u)" -eq 0 ] && die "Run ohmagub as your normal user, not root — it uses sudo where needed."
+  if ! sudo -v; then die "ohmagub needs sudo to install packages."; fi
   # Refresh the timestamp until the top-level shell exits.
   ( while true; do sudo -n true; sleep 50; kill -0 "$$" 2>/dev/null || exit; done ) >/dev/null 2>&1 &
-  export OMAGUB_SUDO_READY=1
+  export OHMAGUB_SUDO_READY=1
 }
 
 # ---------------------------------------------------------------------------
@@ -82,11 +82,11 @@ dconf_load() { is_desktop || return 0; dconf load "$1" < "$2"; }
 # ---------------------------------------------------------------------------
 # File helpers
 # ---------------------------------------------------------------------------
-backup_once() { [ -e "$1" ] || return 0; [ -e "$1.omagub.bak" ] && return 0; cp -a "$1" "$1.omagub.bak"; step "backed up $1"; }
+backup_once() { [ -e "$1" ] || return 0; [ -e "$1.ohmagub.bak" ] && return 0; cp -a "$1" "$1.ohmagub.bak"; step "backed up $1"; }
 ensure_line() { local f="$1" l="$2"; touch "$f"; grep -qxF "$l" "$f" || echo "$l" >> "$f"; }
 ensure_block() {
   local file="$1" marker="$2"
-  local begin="# >>> omagub:${marker} >>>" end="# <<< omagub:${marker} <<<"
+  local begin="# >>> ohmagub:${marker} >>>" end="# <<< ohmagub:${marker} <<<"
   touch "$file"
   if grep -qF "$begin" "$file"; then
     sed -i "/$(printf '%s' "$begin" | sed 's/[][\/.*^$]/\\&/g')/,/$(printf '%s' "$end" | sed 's/[][\/.*^$]/\\&/g')/d" "$file"
@@ -94,4 +94,4 @@ ensure_block() {
   { echo "$begin"; cat; echo "$end"; } >> "$file"
 }
 
-export OMAGUB_PATH="${OMAGUB_PATH:-$HOME/.local/share/omagub}"
+export OHMAGUB_PATH="${OHMAGUB_PATH:-$HOME/.local/share/ohmagub}"

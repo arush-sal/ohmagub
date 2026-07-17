@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 #
-# omagub phase: apps — GUI applications (from OMAGUB_DESKTOP_APPS) + fonts.
+# ohmagub phase: apps — GUI applications (from OHMAGUB_DESKTOP_APPS) + fonts.
 # Each app is a case below; add/remove by editing the list in config.sh.
 
 set -euo pipefail
-OMAGUB_PATH="${OMAGUB_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-source "$OMAGUB_PATH/lib/helpers.sh"
-source "$OMAGUB_PATH/config.sh"
+OHMAGUB_PATH="${OHMAGUB_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+source "$OHMAGUB_PATH/lib/helpers.sh"
+source "$OHMAGUB_PATH/config.sh"
 
 log "Phase: apps"
-[ "${OMAGUB_INSTALL_DESKTOP:-1}" = "1" ] || { warn "OMAGUB_INSTALL_DESKTOP=0 — skipping GUI apps"; exit 0; }
+[ "${OHMAGUB_INSTALL_DESKTOP:-1}" = "1" ] || { warn "OHMAGUB_INSTALL_DESKTOP=0 — skipping GUI apps"; exit 0; }
 ensure_sudo
 
 install_app() {
@@ -54,7 +54,7 @@ install_app() {
   esac
 }
 
-for app in "${OMAGUB_DESKTOP_APPS[@]}"; do install_app "$app"; done
+for app in "${OHMAGUB_DESKTOP_APPS[@]}"; do install_app "$app"; done
 
 # --- fonts (setup.sh install_fonts) ----------------------------------------
 step "fonts"

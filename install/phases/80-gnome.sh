@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 #
-# omagub phase: gnome — desktop settings, 9 workspaces, per-workspace app
+# ohmagub phase: gnome — desktop settings, 9 workspaces, per-workspace app
 # assignment (Auto Move Windows), omakub extensions, i3-style keybindings,
 # and your terminal dconf profile.
 
 set -euo pipefail
-OMAGUB_PATH="${OMAGUB_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-source "$OMAGUB_PATH/lib/helpers.sh"
-source "$OMAGUB_PATH/config.sh"
+OHMAGUB_PATH="${OHMAGUB_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+source "$OHMAGUB_PATH/lib/helpers.sh"
+source "$OHMAGUB_PATH/config.sh"
 
 log "Phase: gnome"
-[ "${OMAGUB_INSTALL_DESKTOP:-1}" = "1" ] || { warn "OMAGUB_INSTALL_DESKTOP=0 — skipping"; exit 0; }
+[ "${OHMAGUB_INSTALL_DESKTOP:-1}" = "1" ] || { warn "OHMAGUB_INSTALL_DESKTOP=0 — skipping"; exit 0; }
 ensure_sudo
 if ! has gnome-shell; then
   warn "GNOME not detected — gsettings/extension steps will be limited"
 fi
-REPO="$OMAGUB_DOTFILES_PATH"
+REPO="$OHMAGUB_DOTFILES_PATH"
 
 # ===========================================================================
 # 1. General desktop settings (from setup.sh dconf + sensible defaults)
@@ -40,16 +40,16 @@ gset org.gnome.nautilus.preferences show-hidden-files true
 # ===========================================================================
 # 2. Nine static workspaces
 # ===========================================================================
-log "Workspaces: ${OMAGUB_WORKSPACES} (static)"
+log "Workspaces: ${OHMAGUB_WORKSPACES} (static)"
 gset org.gnome.mutter dynamic-workspaces false
-gset org.gnome.desktop.wm.preferences num-workspaces "${OMAGUB_WORKSPACES}"
+gset org.gnome.desktop.wm.preferences num-workspaces "${OHMAGUB_WORKSPACES}"
 
 # ===========================================================================
 # 3. i3-style keybindings (Super+1..9 switch, Super+Shift+1..9 move)
 # ===========================================================================
 log "Keybindings"
 wm='org.gnome.desktop.wm.keybindings'
-for i in $(seq 1 "${OMAGUB_WORKSPACES}"); do
+for i in $(seq 1 "${OHMAGUB_WORKSPACES}"); do
   gset "$wm" "switch-to-workspace-$i" "['<Super>$i']"
   gset "$wm" "move-to-workspace-$i"   "['<Super><Shift>$i']"
 done
@@ -81,19 +81,19 @@ apt_install gnome-shell-extensions gnome-shell-extension-manager pipx
 pipx install gnome-extensions-cli >/dev/null 2>&1 || pipx upgrade gnome-extensions-cli >/dev/null 2>&1 || true
 export PATH="$HOME/.local/bin:$PATH"
 
-for uuid in "${OMAGUB_GNOME_EXTENSIONS[@]}"; do
+for uuid in "${OHMAGUB_GNOME_EXTENSIONS[@]}"; do
   step "install $uuid"
   gext install "$uuid" >/dev/null 2>&1 || warn "  no EGO build for $uuid on this GNOME yet — skipped"
 done
 # enable everything we installed + auto-move-windows
-for uuid in "${OMAGUB_GNOME_EXTENSIONS[@]}"; do gnome-extensions enable "$uuid" >/dev/null 2>&1 || true; done
+for uuid in "${OHMAGUB_GNOME_EXTENSIONS[@]}"; do gnome-extensions enable "$uuid" >/dev/null 2>&1 || true; done
 gnome-extensions enable "auto-move-windows@gnome-shell-extensions.gcampax.github.com" >/dev/null 2>&1 || true
 
 # Auto Move Windows: build application-list from the workspace map.
-if [ "${#OMAGUB_WORKSPACE_APPS[@]}" -gt 0 ]; then
+if [ "${#OHMAGUB_WORKSPACE_APPS[@]}" -gt 0 ]; then
   applist="["
-  for ws in $(printf '%s\n' "${!OMAGUB_WORKSPACE_APPS[@]}" | sort -n); do
-    applist+="'${OMAGUB_WORKSPACE_APPS[$ws]}:$ws', "
+  for ws in $(printf '%s\n' "${!OHMAGUB_WORKSPACE_APPS[@]}" | sort -n); do
+    applist+="'${OHMAGUB_WORKSPACE_APPS[$ws]}:$ws', "
   done
   applist="${applist%, }]"
   gset org.gnome.shell.extensions.auto-move-windows application-list "$applist"
@@ -103,7 +103,7 @@ fi
 # Tactile gap size (schema ships inside the extension).
 tactile_schema="$HOME/.local/share/gnome-shell/extensions/tactile@lundal.io/schemas"
 if [ -d "$tactile_schema" ]; then
-  gsettings --schemadir "$tactile_schema" set org.gnome.shell.extensions.tactile gap-size "${OMAGUB_TILING_GAPS}" 2>/dev/null || true
+  gsettings --schemadir "$tactile_schema" set org.gnome.shell.extensions.tactile gap-size "${OHMAGUB_TILING_GAPS}" 2>/dev/null || true
 fi
 # Space Bar: show workspace numbers, keep empty ones visible.
 spacebar_schema="$HOME/.local/share/gnome-shell/extensions/space-bar@luchrioh/schemas"

@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 #
-# omagub phase: shell — zsh framework only. Your actual .zshrc, aliases, theme,
+# ohmagub phase: shell — zsh framework only. Your actual .zshrc, aliases, theme,
 # and oh-my-zsh custom/ come from your dotfiles (phase 20), which is laid on top.
 
 set -euo pipefail
-OMAGUB_PATH="${OMAGUB_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-source "$OMAGUB_PATH/lib/helpers.sh"
-source "$OMAGUB_PATH/config.sh"
+OHMAGUB_PATH="${OHMAGUB_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+source "$OHMAGUB_PATH/lib/helpers.sh"
+source "$OHMAGUB_PATH/config.sh"
 
 log "Phase: shell"
 ensure_sudo
 
-[ "${OMAGUB_SHELL:-zsh}" = "zsh" ] || { warn "OMAGUB_SHELL != zsh — nothing to do"; exit 0; }
+[ "${OHMAGUB_SHELL:-zsh}" = "zsh" ] || { warn "OHMAGUB_SHELL != zsh — nothing to do"; exit 0; }
 
 apt_install zsh
 

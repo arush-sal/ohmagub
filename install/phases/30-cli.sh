@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 #
-# omagub phase: cli — command-line tooling that isn't a language or a dev/k8s
+# ohmagub phase: cli — command-line tooling that isn't a language or a dev/k8s
 # tool. bin (binary manager) + tmux (gpakosz base + your overlay) + ripgrep.
 
 set -euo pipefail
-OMAGUB_PATH="${OMAGUB_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-source "$OMAGUB_PATH/lib/helpers.sh"
-source "$OMAGUB_PATH/config.sh"
+OHMAGUB_PATH="${OHMAGUB_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+source "$OHMAGUB_PATH/lib/helpers.sh"
+source "$OHMAGUB_PATH/config.sh"
 
 log "Phase: cli"
 ensure_sudo
 apt_install ripgrep jq
 
-REPO="$OMAGUB_DOTFILES_PATH"
+REPO="$OHMAGUB_DOTFILES_PATH"
 
 # --- bin (marcosnils/bin) — installs single-file binaries from GitHub -------
 if ! has bin; then

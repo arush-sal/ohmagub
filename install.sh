@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# omagub :: install.sh — the phase engine.
+# ohmagub :: install.sh — the phase engine.
 #   bash install.sh              run every phase in order (full setup)
 #   bash install.sh <name|num>   run a single phase (e.g. "preflight" or "00")
 #   bash install.sh list         list phases
@@ -9,11 +9,11 @@
 # un-numbered phases (keys.sh, cron.sh) that only run when named explicitly.
 
 set -euo pipefail
-export OMAGUB_PATH="${OMAGUB_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
-source "$OMAGUB_PATH/lib/helpers.sh"
-source "$OMAGUB_PATH/config.sh"
+export OHMAGUB_PATH="${OHMAGUB_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+source "$OHMAGUB_PATH/lib/helpers.sh"
+source "$OHMAGUB_PATH/config.sh"
 
-PHASES_DIR="$OMAGUB_PATH/install/phases"
+PHASES_DIR="$OHMAGUB_PATH/install/phases"
 
 # All core (numbered) phase files, in order.
 core_phases() { find "$PHASES_DIR" -maxdepth 1 -name '[0-9][0-9]-*.sh' 2>/dev/null | sort; }
@@ -33,13 +33,13 @@ resolve_phase() {
 }
 
 list_phases() {
-  echo "Core phases (run in this order by 'omagub install'):"
+  echo "Core phases (run in this order by 'ohmagub install'):"
   local f
   for f in $(core_phases); do
     local base; base="$(basename "$f" .sh)"
     printf "  %-4s %s\n" "${base%%-*}" "${base#*-}"
   done
-  echo "Optional phases (run explicitly, e.g. 'omagub phase keys'):"
+  echo "Optional phases (run explicitly, e.g. 'ohmagub phase keys'):"
   for f in "$PHASES_DIR"/*.sh; do
     [ -f "$f" ] || continue
     local base; base="$(basename "$f" .sh)"
@@ -51,7 +51,7 @@ run_phase_file() {
   local f="$1"
   [ -f "$f" ] || die "phase not found: $f"
   log "Running phase: $(basename "$f" .sh)"
-  OMAGUB_PATH="$OMAGUB_PATH" bash "$f"
+  OHMAGUB_PATH="$OHMAGUB_PATH" bash "$f"
 }
 
 main() {
@@ -61,7 +61,7 @@ main() {
       ensure_sudo
       local f
       for f in $(core_phases); do run_phase_file "$f"; done
-      echo; ok "omagub: all phases complete."
+      echo; ok "ohmagub: all phases complete."
       echo "${_c_dim}   Log out and back in for shell, docker group, and GNOME extensions to take effect.${_c_reset}"
       ;;
     list|--list|-l) list_phases ;;

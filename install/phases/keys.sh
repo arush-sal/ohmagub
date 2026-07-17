@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 #
-# omagub phase: keys (OPTIONAL, INTERACTIVE) — import your SSH + GPG keys from
-# your private GitHub gists. Run explicitly:  omagub phase keys
+# ohmagub phase: keys (OPTIONAL, INTERACTIVE) — import your SSH + GPG keys from
+# your private GitHub gists. Run explicitly:  ohmagub phase keys
 #
 # SECURITY: this prompts YOU for a gist token + gist ids at runtime and writes
-# keys into ~/.ssh and your GPG keyring. Nothing is stored in the omagub repo.
-# Not part of `omagub install`. No sudo needed.
+# keys into ~/.ssh and your GPG keyring. Nothing is stored in the ohmagub repo.
+# Not part of `ohmagub install`. No sudo needed.
 
 set -euo pipefail
-OMAGUB_PATH="${OMAGUB_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-source "$OMAGUB_PATH/lib/helpers.sh"
-source "$OMAGUB_PATH/config.sh"
+OHMAGUB_PATH="${OHMAGUB_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+source "$OHMAGUB_PATH/lib/helpers.sh"
+source "$OHMAGUB_PATH/config.sh"
 
 log "Phase: keys (interactive)"
 warn "This imports PRIVATE keys from your GitHub gists. You'll be prompted for a"
@@ -18,7 +18,7 @@ warn "gist token and gist ids. Keys go into ~/.ssh and your GPG keyring only."
 read -r -p "Continue? [y/N] " ans
 case "$ans" in y|Y|yes) ;; *) echo "aborted."; exit 0 ;; esac
 
-GH_USER="${OMAGUB_GITHUB_USER:-arush-sal}"
+GH_USER="${OHMAGUB_GITHUB_USER:-arush-sal}"
 GIST_URL="https://gist.githubusercontent.com/${GH_USER}"
 
 read -rs -p "GitHub Gist token: " TOKEN; echo

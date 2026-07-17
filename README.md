@@ -1,9 +1,9 @@
-# omagub
+# ohmagub
 
 > A personal, phase-based setup for **Ubuntu 26.04+ (GNOME)** — my `aru.sh/setup`
 > tooling, reworked for stock GNOME (no i3), driven by my own dotfiles.
 
-`omagub` turns a fresh Ubuntu install into my configured workstation, in
+`ohmagub` turns a fresh Ubuntu install into my configured workstation, in
 **independently runnable phases**. It installs tooling + apps, wires up GNOME
 for a tiling/9-workspace workflow, and lays my dotfiles on top.
 
@@ -13,10 +13,10 @@ for a tiling/9-workspace workflow, and lays my dotfiles on top.
 
 ```bash
 # on a fresh Ubuntu 26.04+ machine:
-wget -qO- https://raw.githubusercontent.com/arush-sal/omagub/main/boot.sh | bash
+wget -qO- https://raw.githubusercontent.com/arush-sal/ohmagub/master/boot.sh | bash
 ```
 
-Bootstraps to `~/.local/share/omagub` and runs every phase. **Log out/in
+Bootstraps to `~/.local/share/ohmagub` and runs every phase. **Log out/in
 afterward** for the docker group, login shell, and GNOME extensions to take
 effect.
 
@@ -30,16 +30,16 @@ effect.
 Run everything, or any single phase (idempotent):
 
 ```bash
-omagub install            # all core phases, in order
-omagub phase languages    # just one (by name)
-omagub phase 40           # ...or by number
-omagub phases             # list them
-omagub update             # git pull + re-run all
+ohmagub install            # all core phases, in order
+ohmagub phase languages    # just one (by name)
+ohmagub phase 40           # ...or by number
+ohmagub phases             # list them
+ohmagub update             # git pull + re-run all
 ```
 
 | # | Phase | What it does |
 |---|-------|--------------|
-| 00 | `preflight` | OS check (26.04+), apt components, base pkgs + `yq`, locale, timezone, GRUB, root red-prompt, links the `omagub` CLI |
+| 00 | `preflight` | OS check (26.04+), apt components, base pkgs + `yq`, locale, timezone, GRUB, root red-prompt, links the `ohmagub` CLI |
 | 10 | `shell` | zsh + oh-my-zsh + zsh-autosuggestions + fzf(junegunn), sets login shell |
 | 20 | `dotfiles` | clone `arush-sal/dotfiles` → `~/Documents/dotfiles` (HTTPS→SSH remote), rsync home-mirror files, `insteadOf` rewrite |
 | 30 | `cli` | `bin` (→ `~/go/bin`), tmux (gpakosz + your overlay), ripgrep, yt-dlp |
@@ -48,13 +48,13 @@ omagub update             # git pull + re-run all
 | 60 | `editors` | vim-gtk3 + Vundle (`:PluginInstall`, `:GoInstallBinaries`) incl. root; VS Code (bare) |
 | 70 | `apps` | Chrome, Slack (snap), VLC, Deluge, tilda, GPaste + fonts |
 | 80 | `gnome` | dark mode, 9 static workspaces, per-workspace app assignment, omakub extensions, `Super+1..9` keybindings, your terminal dconf |
-| — | `keys` | **optional/interactive** — import SSH/GPG keys from your gists (`omagub phase keys`) |
+| — | `keys` | **optional/interactive** — import SSH/GPG keys from your gists (`ohmagub phase keys`) |
 
 ---
 
 ## Your dotfiles must be cleaned for native Ubuntu
 
-omagub syncs `arush-sal/dotfiles` verbatim. Before running, update them:
+ohmagub syncs `arush-sal/dotfiles` verbatim. Before running, update them:
 
 **`.zshrc`** — delete `eval "$(/usr/bin/mise activate zsh)"` (mise is dropped).
 
@@ -72,10 +72,10 @@ in tmux).
 
 ## Customize — `config.sh`
 
-One file. Highlights: `OMAGUB_WORKSPACES`, `OMAGUB_WORKSPACE_APPS` (the WS→app
-map), `OMAGUB_GNOME_EXTENSIONS`, `OMAGUB_DESKTOP_APPS`, `OMAGUB_K8S_TOOLS`,
-`OMAGUB_GH_EXTENSIONS`, `OMAGUB_NODE_VERSION`, `OMAGUB_INSTALL_*` flags,
-`OMAGUB_DOTFILES_EXCLUDE`. Machine-local, un-committed overrides → `config.local.sh`.
+One file. Highlights: `OHMAGUB_WORKSPACES`, `OHMAGUB_WORKSPACE_APPS` (the WS→app
+map), `OHMAGUB_GNOME_EXTENSIONS`, `OHMAGUB_DESKTOP_APPS`, `OHMAGUB_K8S_TOOLS`,
+`OHMAGUB_GH_EXTENSIONS`, `OHMAGUB_NODE_VERSION`, `OHMAGUB_INSTALL_*` flags,
+`OHMAGUB_DOTFILES_EXCLUDE`. Machine-local, un-committed overrides → `config.local.sh`.
 
 ---
 
@@ -97,9 +97,9 @@ map), `OMAGUB_GNOME_EXTENSIONS`, `OMAGUB_DESKTOP_APPS`, `OMAGUB_K8S_TOOLS`,
 ## Notes
 
 - Target **Ubuntu 26.04+ / GNOME 48+**. Third-party extensions may lag EGO
-  builds on a brand-new GNOME; omagub warns and continues.
+  builds on a brand-new GNOME; ohmagub warns and continues.
 - Idempotent — re-running skips what's present.
-- Secrets never touch the repo; `omagub phase keys` is opt-in and interactive.
+- Secrets never touch the repo; `ohmagub phase keys` is opt-in and interactive.
 - Built on Windows; **test in an Ubuntu VM first** before your daily driver.
 
 ---

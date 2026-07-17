@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
-# omagub phase: editors — vim (vim-gtk3 + Vundle) and VS Code (bare).
+# ohmagub phase: editors — vim (vim-gtk3 + Vundle) and VS Code (bare).
 # Neovim intentionally skipped. Depends on: .vimrc (phase 20), Go (phase 40).
 
 set -euo pipefail
-OMAGUB_PATH="${OMAGUB_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-source "$OMAGUB_PATH/lib/helpers.sh"
-source "$OMAGUB_PATH/config.sh"
+OHMAGUB_PATH="${OHMAGUB_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+source "$OHMAGUB_PATH/lib/helpers.sh"
+source "$OHMAGUB_PATH/config.sh"
 
 log "Phase: editors"
 ensure_sudo

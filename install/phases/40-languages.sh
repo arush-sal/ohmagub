@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
-# omagub phase: languages — Go (longsleep PPA), Node (nvm), Python (system).
+# ohmagub phase: languages — Go (longsleep PPA), Node (nvm), Python (system).
 # No mise, no pyenv (your dotfiles must be cleaned accordingly — see README).
 
 set -euo pipefail
-OMAGUB_PATH="${OMAGUB_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-source "$OMAGUB_PATH/lib/helpers.sh"
-source "$OMAGUB_PATH/config.sh"
+OHMAGUB_PATH="${OHMAGUB_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+source "$OHMAGUB_PATH/lib/helpers.sh"
+source "$OHMAGUB_PATH/config.sh"
 
 log "Phase: languages"
 ensure_sudo
@@ -35,9 +35,9 @@ fi
 if [ -s "$NVM_DIR/nvm.sh" ]; then
   # shellcheck disable=SC1091
   . "$NVM_DIR/nvm.sh"
-  step "nvm install ${OMAGUB_NODE_VERSION}"
-  nvm install "${OMAGUB_NODE_VERSION}" >/dev/null 2>&1 || warn "nvm install ${OMAGUB_NODE_VERSION} failed"
-  nvm alias default "${OMAGUB_NODE_VERSION}" >/dev/null 2>&1 || true
+  step "nvm install ${OHMAGUB_NODE_VERSION}"
+  nvm install "${OHMAGUB_NODE_VERSION}" >/dev/null 2>&1 || warn "nvm install ${OHMAGUB_NODE_VERSION} failed"
+  nvm alias default "${OHMAGUB_NODE_VERSION}" >/dev/null 2>&1 || true
   ok "Node ready ($(node --version 2>/dev/null || echo '?')), npm $(npm --version 2>/dev/null || echo '?')"
 else
   warn "nvm not available — skipping Node"
