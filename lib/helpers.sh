@@ -99,7 +99,16 @@ git_public() { GIT_CONFIG_GLOBAL=/dev/null git "$@"; }
 # ---------------------------------------------------------------------------
 # GNOME helpers (no-op off-desktop)
 # ---------------------------------------------------------------------------
-gset()      { is_desktop || return 0; gsettings set "$1" "$2" "$3" 2>/dev/null || warn "gsettings $1 $2 failed"; }
+gset() {
+  # gset <schema> <key> <value> — skip quietly if the schema isn't installed
+  # (e.g. an optional extension/app is absent), warn only on a real set failure.
+  is_desktop || return 0
+  [ -n "${_gschemas:-}" ] || _gschemas=" $(gsettings list-schemas 2>/dev/null | tr '\n' ' ') "
+  case "$_gschemas" in
+    *" $1 "*) gsettings set "$1" "$2" "$3" 2>/dev/null || warn "gsettings $1 $2 failed" ;;
+    *) step "skip (schema not present): $1" ;;
+  esac
+}
 dconf_load() { is_desktop || return 0; dconf load "$1" < "$2"; }
 
 # ---------------------------------------------------------------------------

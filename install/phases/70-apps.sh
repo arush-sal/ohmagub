@@ -28,10 +28,20 @@ install_app() {
       ok "chrome"
       ;;
     slack)
-      if ! snap list slack >/dev/null 2>&1; then
-        step "Slack (snap)"; sudo snap install slack >/dev/null 2>&1 || warn "slack snap failed"
+      if snap list slack >/dev/null 2>&1; then
+        ok "slack present"
+      elif has snap; then
+        step "Slack (snap)"
+        # Fresh VMs: snapd may still be seeding — installs fail until it's ready.
+        sudo snap wait system seed.loaded 2>/dev/null || true
+        if sudo snap install slack; then           # NOT silenced: show real errors
+          ok "slack installed"
+        else
+          warn "slack snap failed (see error above) — retry later with: sudo snap install slack"
+        fi
+      else
+        warn "snapd not available — skipping slack"
       fi
-      ok "slack"
       ;;
     vlc)     apt_install vlc; ok "vlc" ;;
     deluge)  apt_install deluge-gtk deluged deluge-web; ok "deluge" ;;

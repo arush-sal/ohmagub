@@ -29,10 +29,11 @@ gset org.gnome.desktop.interface enable-hot-corners false
 # input (setup.sh:251-252)
 gset org.gnome.desktop.peripherals.touchpad natural-scroll false
 gset org.gnome.desktop.peripherals.touchpad tap-to-click true
-# dock
+# dock (dash-to-dock keys vary by version; gset skips quietly if absent).
+# click-action is intentionally omitted — its valid enum differs across
+# Ubuntu Dock versions and errors on GNOME 48. Set it in Settings if wanted.
 gset org.gnome.shell.extensions.dash-to-dock autohide true
 gset org.gnome.shell.extensions.dash-to-dock intellihide true
-gset org.gnome.shell.extensions.dash-to-dock click-action 'minimize-or-previous'
 # nautilus
 gset org.gnome.nautilus.preferences default-folder-viewer 'list-view'
 gset org.gnome.nautilus.preferences show-hidden-files true
@@ -114,6 +115,11 @@ fi
 # ===========================================================================
 # 5. Terminal profile (loaded verbatim — the su custom-command is intentional)
 # ===========================================================================
+# GNOME 48 ships Console/Ptyxis by default; your whole terminal setup (dconf
+# profile, x-terminal-emulator, Super+Return) targets gnome-terminal, so ensure
+# it's installed — this also provides the Terminal.Legacy.Settings schema.
+apt_install gnome-terminal
+unset _gschemas   # invalidate gset's schema cache — gnome-terminal just added one
 if [ -f "$REPO/gnome/gnome-terminal-profiles.dconf" ] && is_desktop; then
   step "loading your GNOME Terminal profile"
   dconf load /org/gnome/terminal/legacy/profiles:/ < "$REPO/gnome/gnome-terminal-profiles.dconf"
