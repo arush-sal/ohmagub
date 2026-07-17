@@ -12,8 +12,7 @@ for a tiling/9-workspace workflow, and lays my dotfiles on top.
 ## Quick start
 
 ```bash
-# on a fresh Ubuntu 26.04+ machine:
-wget -qO- https://raw.githubusercontent.com/arush-sal/ohmagub/master/boot.sh | bash
+wget -qO - https://raw.githubusercontent.com/arush-sal/ohmagub/master/boot.sh | bash
 ```
 
 Bootstraps to `~/.local/share/ohmagub` and runs every phase. **Log out/in
