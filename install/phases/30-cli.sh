@@ -16,11 +16,8 @@ REPO="$OHMAGUB_DOTFILES_PATH"
 
 # --- bin (marcosnils/bin) — installs single-file binaries from GitHub -------
 if ! has bin; then
-  case "$(uname -m)" in
-    x86_64)  pat="Linux_x86_64" ;;
-    aarch64) pat="Linux_arm64" ;;
-    *)       pat="Linux_x86_64" ;;
-  esac
+  # Asset naming is lowercase, e.g. bin_0.29.0_linux_amd64 (goreleaser default).
+  pat="linux_$(gh_arch)"
   # '|| true': head closes the pipe early -> SIGPIPE upstream -> with pipefail
   # the pipeline reports failure even on success, which would abort the phase.
   url="$(curl -fsSL https://api.github.com/repos/marcosnils/bin/releases/latest \
