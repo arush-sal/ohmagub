@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#
+# omagub-dotfiles-watch — watch the dotfiles repo and auto-push after edits
+# settle. Debounced: waits for OMAGUB_WATCH_DEBOUNCE seconds of quiet before
+# committing, so one editing session == one commit. Run by the systemd user
+# service omagub-dotfiles-watch.service.
+
+set -euo pipefail
+REPO="${OMAGUB_DOTFILES_PATH:-$HOME/Documents/dotfiles}"
+DEBOUNCE="${OMAGUB_WATCH_DEBOUNCE:-10}"
+EXCLUDE='(/\.git/|\.swp$|~$|/4913$)'   # ignore git internals + editor temp files
+
+command -v inotifywait >/dev/null 2>&1 || { echo "inotify-tools not installed" >&2; exit 1; }
+[ -d "$REPO/.git" ] || { echo "no git repo at $REPO" >&2; exit 1; }
+
+echo "omagub: watching $REPO (debounce ${DEBOUNCE}s)"
+while true; do
+  # Block until the first change.
+  inotifywait -r -q -e modify,create,delete,move --exclude "$EXCLUDE" "$REPO" >/dev/null || { sleep 2; continue; }
+
+  # Settle: keep resetting the timer while events keep arriving; break on quiet.
+  while inotifywait -r -q -t "$DEBOUNCE" -e modify,create,delete,move --exclude "$EXCLUDE" "$REPO" >/dev/null 2>&1; do :; done
+
+  "$(dirname "$0")/omagub-dotfiles-push" || true
+done

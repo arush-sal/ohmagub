@@ -1,0 +1,9 @@
+# Shell scripts must always be LF, even if edited on Windows.
+*.sh    text eol=lf
+*.bash  text eol=lf
+boot.sh text eol=lf
+bin/*   text eol=lf
+*.toml  text eol=lf
+*.conf  text eol=lf
+*.dconf text eol=lf
+*.lua   text eol=lf

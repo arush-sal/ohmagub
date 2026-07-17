@@ -1,0 +1,22 @@
+# Local overrides — keep secrets & machine-specific tweaks out of git.
+config.local.sh
+*.local.sh
+
+# Never commit credentials.
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+*.gpg
+.secrets/
+
+# Claude Code local settings (machine-specific)
+.claude/settings.local.json
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+*.swp

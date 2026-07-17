@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#
+# omagub-dotfiles-push — commit any changes in the dotfiles repo and push.
+# Called by omagub-dotfiles-watch (debounced). Safe to run by hand too.
+# Uses a normal (non-force) push — no `git yolo`.
+
+set -euo pipefail
+REPO="${OMAGUB_DOTFILES_PATH:-$HOME/Documents/dotfiles}"
+[ -d "$REPO/.git" ] || { echo "no git repo at $REPO" >&2; exit 1; }
+cd "$REPO"
+
+# Nothing to do?
+[ -n "$(git status --porcelain)" ] || exit 0
+
+git add -A
+git commit -q -m "omagub auto-sync: $(date '+%Y-%m-%d %H:%M:%S')" || exit 0
+
+if git push -q; then
+  command -v notify-send >/dev/null 2>&1 && notify-send -a omagub "dotfiles synced" "pushed to $(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo origin)"
+else
+  command -v notify-send >/dev/null 2>&1 && notify-send -u critical -a omagub "dotfiles push failed" "resolve manually in $REPO (diverged? auth?)"
+  echo "push failed — resolve manually in $REPO" >&2
+  exit 1
+fi
