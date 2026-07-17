@@ -29,11 +29,19 @@ gset org.gnome.desktop.interface enable-hot-corners false
 # input (setup.sh:251-252)
 gset org.gnome.desktop.peripherals.touchpad natural-scroll false
 gset org.gnome.desktop.peripherals.touchpad tap-to-click true
-# dock (dash-to-dock keys vary by version; gset skips quietly if absent).
-# click-action is intentionally omitted — its valid enum differs across
-# Ubuntu Dock versions and errors on GNOME 48. Set it in Settings if wanted.
-gset org.gnome.shell.extensions.dash-to-dock autohide true
-gset org.gnome.shell.extensions.dash-to-dock intellihide true
+# dock — the Ubuntu "sidebar". Disable it for a tiling workflow, or (if you
+# keep it: OHMAGUB_DISABLE_DOCK=0) just autohide it.
+if [ "${OHMAGUB_DISABLE_DOCK:-1}" = "1" ]; then
+  if has gnome-extensions; then
+    for d in ubuntu-dock@ubuntu.com dash-to-dock@micxgx.gmail.com; do
+      gnome-extensions disable "$d" >/dev/null 2>&1 && step "disabled dock: $d" || true
+    done
+  fi
+  ok "Ubuntu dock (sidebar) disabled — effective after logout"
+else
+  gset org.gnome.shell.extensions.dash-to-dock autohide true
+  gset org.gnome.shell.extensions.dash-to-dock intellihide true
+fi
 # nautilus
 gset org.gnome.nautilus.preferences default-folder-viewer 'list-view'
 gset org.gnome.nautilus.preferences show-hidden-files true

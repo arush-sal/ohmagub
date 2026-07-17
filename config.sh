@@ -58,6 +58,7 @@ OHMAGUB_DESKTOP_APPS=( chrome slack vlc deluge tilda gpaste localsend obsidian )
 
 # --- GNOME / tiling / workspaces (phase 80) --------------------------------
 export OHMAGUB_INSTALL_DESKTOP=1
+export OHMAGUB_DISABLE_DOCK="${OHMAGUB_DISABLE_DOCK:-1}"   # 1 = remove the Ubuntu sidebar/dock
 export OHMAGUB_WORKSPACES="${OHMAGUB_WORKSPACES:-9}"
 export OHMAGUB_TILING_GAPS="${OHMAGUB_TILING_GAPS:-8}"   # Tactile gap size (px)
 
