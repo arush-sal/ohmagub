@@ -19,14 +19,10 @@ OHMAGUB_PATH="${OHMAGUB_PATH:-$HOME/.local/share/ohmagub}"
 ascii() {
   cat <<'EOF'
 
-   ___  _                           _
-  / _ \| |__  _ __ ___   __ _  __ _| |_   _ _ __
- | | | | '_ \| '_ ` _ \ / _` |/ _` | | | | | '_ \
- | |_| | | | | | | | | | (_| | (_| | | |_| | |_) |
-  \___/|_| |_|_| |_| |_|\__,_|\__, |_|\__,_| .__/
-                              |___/        |_|
-
-  ohmagub — a personal, tiling-friendly Ubuntu setup.  Feel the joy building.
+  ════════════════════════════════════════════════════
+     O H M A G U B
+  ════════════════════════════════════════════════════
+  a personal, tiling-friendly Ubuntu setup.  Feel the joy building.
 EOF
 }
 
