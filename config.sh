@@ -39,6 +39,11 @@ export OHMAGUB_INSTALL_GCLOUD=1
 export OHMAGUB_INSTALL_CODEX=1          # OpenAI Codex CLI (npm global)
 export OHMAGUB_INSTALL_CLAUDE_CODE=1    # Anthropic Claude Code CLI (npm global)
 
+# Let `bin` prompt you to pick a release asset (only when a TTY is present).
+# 1 = interactive picker; 0 = auto-select silently then fall back. Interactive
+# still needs the GitHub API, so a direct-download fallback is kept regardless.
+export OHMAGUB_BIN_INTERACTIVE="${OHMAGUB_BIN_INTERACTIVE:-0}"
+
 # Kubernetes tooling to install.
 OHMAGUB_K8S_TOOLS=( kubectl helm kubectx kubens k9s kind )
 

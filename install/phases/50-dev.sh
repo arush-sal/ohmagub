@@ -33,7 +33,17 @@ fi
 # ---------------------------------------------------------------------------
 # Kubernetes stack (bin > apt > direct)
 # ---------------------------------------------------------------------------
-bin_try() { has bin && bin install "$1" >/dev/null 2>&1; }
+bin_try() {
+  has bin || return 1
+  # Interactive picker when opted in AND stdin is a real terminal; otherwise
+  # auto-select quietly (works unattended / under curl|bash where there's no TTY).
+  if [ "${OHMAGUB_BIN_INTERACTIVE:-0}" = "1" ] && [ -t 0 ]; then
+    echo "  (bin: pick the asset for $1)"
+    bin install "$1"
+  else
+    bin install "$1" >/dev/null 2>&1
+  fi
+}
 want() { case " ${OHMAGUB_K8S_TOOLS[*]} " in *" $1 "*) return 0 ;; *) return 1 ;; esac; }
 
 # kubectl — apt (pkgs.k8s.io), minor auto-detected from the stable channel.
