@@ -55,10 +55,12 @@ if want helm && ! has helm; then
   has helm && ok "helm installed"
 fi
 
-# kubectx — bin.
+# kubectx — bin, then the raw script (no API).
 if want kubectx && ! has kubectx; then
-  bin_try github.com/ahmetb/kubectx || warn "kubectx via bin failed"
-  has kubectx && ok "kubectx installed"
+  bin_try github.com/ahmetb/kubectx \
+    || install_bin https://raw.githubusercontent.com/ahmetb/kubectx/master/kubectx kubectx \
+    || true
+  has kubectx && ok "kubectx installed" || warn "kubectx install failed"
 fi
 
 # kubens — direct raw script (bin installs only one binary from the kubectx repo).
@@ -66,16 +68,21 @@ if want kubens && ! has kubens; then
   install_bin https://raw.githubusercontent.com/ahmetb/kubectx/master/kubens kubens && ok "kubens installed"
 fi
 
-# k9s — bin.
+# k9s — bin, then the official .deb (bin can't pick among k9s's apk/deb/rpm/
+# tar.gz assets; the .deb name has no version so latest/download needs no API).
 if want k9s && ! has k9s; then
-  bin_try github.com/derailed/k9s || warn "k9s via bin failed"
-  has k9s && ok "k9s installed"
+  bin_try github.com/derailed/k9s \
+    || install_deb "https://github.com/derailed/k9s/releases/latest/download/k9s_linux_$(gh_arch).deb" \
+    || true
+  has k9s && ok "k9s installed" || warn "k9s install failed (bin + .deb)"
 fi
 
-# kind — bin (setup.sh method).
+# kind — bin, then the direct binary (latest/download, no API — dodges rate limits).
 if want kind && ! has kind; then
-  bin_try github.com/kubernetes-sigs/kind || warn "kind via bin failed"
-  has kind && ok "kind installed"
+  bin_try github.com/kubernetes-sigs/kind \
+    || install_bin "https://github.com/kubernetes-sigs/kind/releases/latest/download/kind-linux-$(gh_arch)" kind \
+    || true
+  has kind && ok "kind installed" || warn "kind install failed (bin + direct)"
 fi
 
 # ---------------------------------------------------------------------------
