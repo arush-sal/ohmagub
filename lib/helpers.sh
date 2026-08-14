@@ -50,10 +50,20 @@ _apt_updated=0
 apt_update_once() { [ "$_apt_updated" = "1" ] && return 0; step "apt update"; sudo apt-get update -y -qq; _apt_updated=1; }
 apt_dirty()       { _apt_updated=0; }
 apt_install() {
-  local want=() p
-  for p in "$@"; do is_installed "$p" || want+=("$p"); done
-  [ ${#want[@]} -eq 0 ] && return 0
+  local missing=() want=() p
+  for p in "$@"; do is_installed "$p" || missing+=("$p"); done
+  [ ${#missing[@]} -eq 0 ] && return 0
   apt_update_once
+  # Package sets differ across releases (24.04 vs 26.04): skip what this
+  # release doesn't ship instead of aborting the whole phase under `set -e`.
+  for p in "${missing[@]}"; do
+    if apt-cache show "$p" >/dev/null 2>&1; then
+      want+=("$p")
+    else
+      warn "apt: '$p' not available on this Ubuntu release — skipped"
+    fi
+  done
+  [ ${#want[@]} -eq 0 ] && return 0
   step "apt install: ${want[*]}"
   sudo apt-get install -y -qq "${want[@]}"
 }
