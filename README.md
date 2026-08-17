@@ -1,6 +1,6 @@
 # ohmagub
 
-> A personal, phase-based setup for **Ubuntu 26.04+ (GNOME)** — my `aru.sh/setup`
+> A personal, phase-based setup for **Ubuntu 24.04+ (GNOME)** — my `aru.sh/setup`
 > tooling, reworked for stock GNOME (no i3), driven by my own dotfiles.
 
 `ohmagub` turns a fresh Ubuntu install into my configured workstation, in
@@ -38,7 +38,7 @@ ohmagub update             # git pull + re-run all
 
 | # | Phase | What it does |
 |---|-------|--------------|
-| 00 | `preflight` | OS check (26.04+), apt components, base pkgs + `yq`, locale, timezone, GRUB, root red-prompt, links the `ohmagub` CLI |
+| 00 | `preflight` | OS check (24.04+), apt components, base pkgs + `yq`, locale, timezone, GRUB, root red-prompt, links the `ohmagub` CLI |
 | 10 | `shell` | zsh + oh-my-zsh + zsh-autosuggestions + fzf(junegunn), sets login shell |
 | 20 | `dotfiles` | clone `arush-sal/dotfiles` → `~/Documents/dotfiles` (HTTPS→SSH remote), rsync home-mirror files, `insteadOf` rewrite |
 | 30 | `cli` | `bin` (→ `~/go/bin`), tmux (gpakosz + your overlay), ripgrep, yt-dlp |
@@ -95,8 +95,11 @@ map), `OHMAGUB_GNOME_EXTENSIONS`, `OHMAGUB_DESKTOP_APPS`, `OHMAGUB_K8S_TOOLS`,
 
 ## Notes
 
-- Target **Ubuntu 26.04+ / GNOME 48+**. Third-party extensions may lag EGO
-  builds on a brand-new GNOME; ohmagub warns and continues.
+- Supports **Ubuntu 24.04+ (GNOME 46+)**; developed on 26.04 / GNOME 48.
+  Third-party extensions may lag EGO builds on a brand-new GNOME; ohmagub warns
+  and continues.
+- Cross-release safe: apt packages absent from your release (24.04 and 26.04
+  ship different sets) are warned about and skipped, not fatal.
 - Idempotent — re-running skips what's present.
 - Secrets never touch the repo; `ohmagub phase keys` is opt-in and interactive.
 - Built on Windows; **test in an Ubuntu VM first** before your daily driver.

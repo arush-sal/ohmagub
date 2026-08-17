@@ -11,17 +11,17 @@ source "$OHMAGUB_PATH/config.sh"
 log "Phase: preflight"
 ensure_sudo
 
-# --- OS check (target: Ubuntu 26.04+) --------------------------------------
+# --- OS check (supported: Ubuntu 24.04+) -----------------------------------
 if [ -r /etc/os-release ]; then
   . /etc/os-release
   if [ "${ID:-}" != "ubuntu" ]; then
     warn "ohmagub targets Ubuntu (found: ${ID:-unknown}). Continuing anyway."
   else
     ver_major="${VERSION_ID%%.*}"
-    if [ "${ver_major:-0}" -ge 26 ] 2>/dev/null; then
+    if [ "${ver_major:-0}" -ge 24 ] 2>/dev/null; then
       ok "Ubuntu ${VERSION_ID} detected"
     else
-      warn "ohmagub targets Ubuntu 26.04+ — found ${VERSION_ID}. GNOME/extension bits may differ."
+      warn "ohmagub supports Ubuntu 24.04+ — found ${VERSION_ID}. GNOME/extension bits may differ."
     fi
   fi
 else
