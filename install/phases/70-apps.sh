@@ -109,23 +109,33 @@ if have_nerd_font; then
   ok "FiraCode Nerd Font present"
 else
   step "FiraCode Nerd Font"
+  # XDG font dir; ~/.fonts still works but fontconfig 2.15 treats it as legacy.
+  fontdir="$HOME/.local/share/fonts"
   tmp="$(mktemp -d)"
   if ! fetch "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip" "$tmp/FiraCode.zip"; then
     warn "FiraCode Nerd Font: download failed (offline? GitHub unreachable?)"
   elif ! has unzip; then
     warn "FiraCode Nerd Font: unzip missing — run phase 00 first"
+  elif ! unzip_out="$(unzip -o "$tmp/FiraCode.zip" -d "$tmp/FiraCode" 2>&1)"; then
+    warn "FiraCode Nerd Font: unzip failed — ${unzip_out##*$'\n'}"
   else
-    unzip -oq "$tmp/FiraCode.zip" -d "$tmp/FiraCode"
-    mkdir -p "$HOME/.fonts"
+    mkdir -p "$fontdir"
     # v3 asset names are FiraCodeNerdFont*-*.ttf; older ones were FiraCode*.ttf.
-    found="$(find "$tmp/FiraCode" -type f -iname 'Fira*.tt[fc]' ! -iname '*windows*' -print -exec cp {} "$HOME/.fonts/" \; | wc -l)"
-    fc-cache -f >/dev/null 2>&1
-    if [ "$found" -gt 0 ] && have_nerd_font; then
-      ok "FiraCode Nerd Font installed ($found faces)"
-    elif [ "$found" -eq 0 ]; then
+    mapfile -d '' faces < <(find "$tmp/FiraCode" -type f -iname 'Fira*.tt[fc]' ! -iname '*windows*' -print0)
+    [ "${#faces[@]}" -gt 0 ] && cp -f "${faces[@]}" "$fontdir/"
+    # fc-cache exits non-zero for trouble in ANY font dir (unparseable file,
+    # stale cache) — nothing to do with this font. Never let that kill the
+    # phase, and never silence it either: >/dev/null 2>&1 with no guard is how
+    # this block used to die with no output at all.
+    if ! fc_out="$(fc-cache -f 2>&1)"; then
+      warn "fc-cache reported a problem (fonts may still be fine): ${fc_out##*$'\n'}"
+    fi
+    if [ "${#faces[@]}" -eq 0 ]; then
       warn "FiraCode Nerd Font: no Fira*.ttf inside the zip — asset layout changed upstream"
+    elif have_nerd_font; then
+      ok "FiraCode Nerd Font installed (${#faces[@]} faces -> $fontdir)"
     else
-      warn "FiraCode Nerd Font: copied $found faces but fontconfig still can't see them"
+      warn "FiraCode Nerd Font: copied ${#faces[@]} faces to $fontdir but fontconfig can't see them yet"
     fi
   fi
   rm -rf "$tmp"
