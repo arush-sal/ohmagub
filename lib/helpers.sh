@@ -92,13 +92,18 @@ install_bin() { # install_bin <url> <name>
 # GitHub arch string for release assets.
 gh_arch() { case "$(uname -m)" in x86_64) echo amd64 ;; aarch64) echo arm64 ;; *) echo amd64 ;; esac; }
 
-# Install the latest .deb from a GitHub repo whose asset name matches a regex.
+# Install the newest .deb from a GitHub repo whose asset name matches a regex.
 install_release_deb() {
   # install_release_deb <owner/repo> <asset-regex> <human name>
   local repo="$1" pat="$2" name="$3" url
+  # Scan recent releases, not just /latest: projects ship platform-only point
+  # releases (LocalSend v1.18.1 was Android-only), and /latest would then match
+  # nothing even though the previous release has the .deb. Newest first, drafts
+  # and prereleases excluded.
   # '|| true' guards the head/SIGPIPE + no-match cases under set -o pipefail.
-  url="$(curl -fsSL "https://api.github.com/repos/$repo/releases/latest" \
-        | jq -r '.assets[].browser_download_url' | grep -E "$pat" | head -1 || true)"
+  url="$(curl -fsSL "https://api.github.com/repos/$repo/releases?per_page=10" \
+        | jq -r '.[] | select(.draft == false and .prerelease == false) | .assets[].browser_download_url' \
+        | grep -E "$pat" | head -1 || true)"
   if [ -n "$url" ]; then
     install_deb "$url"
     ok "$name installed"
