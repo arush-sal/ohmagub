@@ -22,10 +22,15 @@ if has gnome-extensions; then
   ok "disabled ohmagub GNOME extensions"
 fi
 
-# Reset the app-to-workspace assignment list.
+# Reset the app-to-workspace assignment list + dock favourites.
 if has gsettings; then
   gsettings reset org.gnome.shell.extensions.auto-move-windows application-list >/dev/null 2>&1 || true
+  gsettings reset org.gnome.shell favorite-apps >/dev/null 2>&1 || true
 fi
+
+# Remove the autostart entries ohmagub copied in.
+for app in "${OHMAGUB_AUTOSTART_APPS[@]}"; do rm -f "$HOME/.config/autostart/$app"; done
+ok "removed ohmagub autostart entries"
 
 warn "Left in place: installed packages, your dotfiles ($OHMAGUB_DOTFILES_PATH), and this checkout."
 warn "Your keybindings/workspaces remain set — reset via GNOME Settings if desired."

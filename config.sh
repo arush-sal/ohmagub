@@ -59,7 +59,7 @@ OHMAGUB_GH_EXTENSIONS=(
 )
 
 # --- desktop apps (phase 70) ------------------------------------------------
-OHMAGUB_DESKTOP_APPS=( chrome slack vlc deluge tilda gpaste localsend obsidian )
+OHMAGUB_DESKTOP_APPS=( chrome slack vlc deluge tilda gpaste localsend obsidian gnome-tweaks tailscale )
 
 # --- GNOME / tiling / workspaces (phase 80) --------------------------------
 export OHMAGUB_INSTALL_DESKTOP=1
@@ -86,6 +86,24 @@ declare -gA OHMAGUB_WORKSPACE_APPS=(
   [4]="code.desktop"
   [5]="org.gnome.Nautilus.desktop"
   [9]="deluge.desktop"
+)
+
+# Dock / overview-dash favourites, pinned in this order (phase 80). Mirrors the
+# workspace map above so the pin order matches the workspace order.
+OHMAGUB_DOCK_FAVORITES=(
+  "org.gnome.Terminal.desktop"
+  "google-chrome.desktop"
+  "slack_slack.desktop"
+  "code.desktop"
+  "org.gnome.Nautilus.desktop"
+)
+
+# Launched at login (phase 80) — .desktop ids copied into ~/.config/autostart.
+# Each lands on its assigned workspace via Auto Move Windows.
+OHMAGUB_AUTOSTART_APPS=(
+  "org.gnome.Terminal.desktop"
+  "google-chrome.desktop"
+  "slack_slack.desktop"
 )
 
 # --- local overrides --------------------------------------------------------

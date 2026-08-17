@@ -70,6 +70,21 @@ install_app() {
         esac
       else ok "localsend present"; fi
       ;;
+    gnome-tweaks) apt_install gnome-tweaks; ok "gnome-tweaks" ;;
+    tailscale)
+      # Official script: adds the apt repo for this release, installs, enables
+      # the daemon. Not logged in until you run `sudo tailscale up`.
+      if ! has tailscale; then
+        step "Tailscale"
+        if curl -fsSL https://tailscale.com/install.sh | sh >/dev/null 2>&1; then
+          ok "tailscale installed — run 'sudo tailscale up' to join your tailnet"
+        else
+          warn "tailscale install failed (no repo for this release yet?) — see https://tailscale.com/download/linux"
+        fi
+      else
+        ok "tailscale present"
+      fi
+      ;;
     obsidian)
       # asset naming: obsidian_<ver>_amd64.deb (no arm64 .deb published)
       if ! is_installed obsidian; then
