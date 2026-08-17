@@ -92,23 +92,50 @@ install_bin() { # install_bin <url> <name>
 # GitHub arch string for release assets.
 gh_arch() { case "$(uname -m)" in x86_64) echo amd64 ;; aarch64) echo arm64 ;; *) echo amd64 ;; esac; }
 
+# Recent release tags, newest first, WITHOUT the API: api.github.com allows only
+# 60 unauthenticated requests/hour per IP and a full install burns through that,
+# while releases.atom is not rate-limited.
+gh_release_tags() {
+  curl -fsSL "https://github.com/$1/releases.atom" 2>/dev/null \
+    | grep -o 'releases/tag/[^"<&]*' | sed 's|releases/tag/||' | head -10 || true
+}
+
 # Install the newest .deb from a GitHub repo whose asset name matches a regex.
 install_release_deb() {
-  # install_release_deb <owner/repo> <asset-regex> <human name>
-  local repo="$1" pat="$2" name="$3" url
+  # install_release_deb <owner/repo> <asset-regex> <human name> [name-template]
+  # name-template makes this work when the API is rate-limited: %V is replaced
+  # with the version (tag minus a leading "v"), e.g. 'LocalSend-%V-linux-x86-64.deb'.
+  local repo="$1" pat="$2" name="$3" tmpl="${4:-}" url auth=()
+  # A token lifts the API limit from 60/hour to 5000; use one if the env has it.
+  local tok="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
+  [ -n "$tok" ] && auth=(-H "Authorization: Bearer $tok")
   # Scan recent releases, not just /latest: projects ship platform-only point
   # releases (LocalSend v1.18.1 was Android-only), and /latest would then match
   # nothing even though the previous release has the .deb. Newest first, drafts
   # and prereleases excluded.
   # '|| true' guards the head/SIGPIPE + no-match cases under set -o pipefail.
-  url="$(curl -fsSL "https://api.github.com/repos/$repo/releases?per_page=10" \
+  url="$(curl -fsSL "${auth[@]}" "https://api.github.com/repos/$repo/releases?per_page=10" 2>/dev/null \
         | jq -r '.[] | select(.draft == false and .prerelease == false) | .assets[].browser_download_url' \
         | grep -E "$pat" | head -1 || true)"
+
+  # API unavailable (403 rate limit) or it returned nothing: rebuild the URL from
+  # the atom feed's tags and probe each candidate until one exists.
+  if [ -z "$url" ] && [ -n "$tmpl" ]; then
+    local tag ver cand
+    for tag in $(gh_release_tags "$repo"); do
+      ver="${tag#v}"
+      cand="https://github.com/$repo/releases/download/$tag/${tmpl//%V/$ver}"
+      if curl -fsIL -o /dev/null "$cand" 2>/dev/null; then
+        url="$cand"; step "$name: resolved without the API ($tag)"; break
+      fi
+    done
+  fi
+
   if [ -n "$url" ]; then
     install_deb "$url"
     ok "$name installed"
   else
-    warn "$name: no release .deb matching /$pat/ (arch unsupported? rate-limited?)"
+    warn "$name: could not resolve a .deb (/$pat/ unmatched — API rate-limited and no tag matched the template?)"
   fi
 }
 

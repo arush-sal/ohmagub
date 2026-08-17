@@ -20,8 +20,18 @@ if ! has bin; then
   pat="linux_$(gh_arch)"
   # '|| true': head closes the pipe early -> SIGPIPE upstream -> with pipefail
   # the pipeline reports failure even on success, which would abort the phase.
-  url="$(curl -fsSL https://api.github.com/repos/marcosnils/bin/releases/latest \
+  url="$(curl -fsSL https://api.github.com/repos/marcosnils/bin/releases/latest 2>/dev/null \
         | jq -r '.assets[].browser_download_url' | grep "$pat" | head -1 || true)"
+  # The API allows 60 unauthenticated requests/hour per IP; a full install can
+  # exhaust it and return 403. Rebuild the URL from the (unlimited) atom feed.
+  if [ -z "$url" ]; then
+    for tag in $(gh_release_tags marcosnils/bin); do
+      cand="https://github.com/marcosnils/bin/releases/download/$tag/bin_${tag#v}_${pat}"
+      if curl -fsIL -o /dev/null "$cand" 2>/dev/null; then
+        url="$cand"; step "bin: resolved without the API ($tag)"; break
+      fi
+    done
+  fi
   if [ -n "$url" ]; then
     install_bin "$url" bin
     ok "bin installed"
