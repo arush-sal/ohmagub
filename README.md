@@ -45,8 +45,8 @@ ohmagub update             # git pull + re-run all
 | 40 | `languages` | Go (longsleep PPA), Node (nvm), Python (system python3) |
 | 50 | `dev` | Docker (get.docker.com), k8s (kubectl/helm/kubectx/kubens/k9s/kind, bin>apt>direct), gh + extensions, gcloud, Codex + Claude Code CLIs |
 | 60 | `editors` | vim-gtk3 + Vundle (`:PluginInstall`, `:GoInstallBinaries`) incl. root; VS Code (bare) |
-| 70 | `apps` | Chrome, Slack (snap), VLC, Deluge, tilda, GPaste + fonts |
-| 80 | `gnome` | dark mode, 9 static workspaces, per-workspace app assignment, omakub extensions, `Super+1..9` keybindings, your terminal dconf |
+| 70 | `apps` | Chrome, Slack (snap), VLC, Deluge, tilda, GPaste, LocalSend, Obsidian, GNOME Tweaks, Tailscale + fonts |
+| 80 | `gnome` | dark mode, 9 static workspaces, per-workspace app assignment, dock favourites, login autostart, omakub extensions, `Super+1..9` keybindings, your terminal dconf |
 | — | `keys` | **optional/interactive** — import SSH/GPG keys from your gists (`ohmagub phase keys`) |
 
 ---
@@ -82,6 +82,10 @@ map), `OHMAGUB_GNOME_EXTENSIONS`, `OHMAGUB_DESKTOP_APPS`, `OHMAGUB_K8S_TOOLS`,
 
 9 static workspaces. Default app-per-workspace: 1=terminal, 2=chrome, 3=slack,
 4=vscode, 5=nautilus, 9=deluge (Auto Move Windows).
+
+Terminal, Chrome and Slack start at login (`OHMAGUB_AUTOSTART_APPS`) and land on
+workspaces 1/2/3. The dock/dash pins the same five apps in workspace order
+(`OHMAGUB_DOCK_FAVORITES`).
 
 | Keys | Action |
 |---|---|

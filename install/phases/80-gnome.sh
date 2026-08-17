@@ -109,6 +109,33 @@ if [ "${#OHMAGUB_WORKSPACE_APPS[@]}" -gt 0 ]; then
   ok "workspace app assignments: $applist"
 fi
 
+# Dock / overview-dash favourites, in the configured order. Works whether the
+# dock is disabled (Activities dash) or kept (Ubuntu Dock reads the same key).
+if [ "${#OHMAGUB_DOCK_FAVORITES[@]}" -gt 0 ]; then
+  favs="["
+  for app in "${OHMAGUB_DOCK_FAVORITES[@]}"; do favs+="'$app', "; done
+  favs="${favs%, }]"
+  gset org.gnome.shell favorite-apps "$favs"
+  ok "dock favourites: $favs"
+fi
+
+# Autostart: copy each .desktop into ~/.config/autostart. Auto Move Windows
+# then drops each window on its assigned workspace.
+autostart_add() { # autostart_add <desktop-id>
+  local id="$1" src="" d
+  for d in "$HOME/.local/share/applications" /usr/share/applications /var/lib/snapd/desktop/applications; do
+    [ -f "$d/$id" ] && { src="$d/$id"; break; }
+  done
+  [ -n "$src" ] || { warn "autostart: $id not installed — skipped"; return 0; }
+  mkdir -p "$HOME/.config/autostart"
+  cp -f "$src" "$HOME/.config/autostart/$id"
+  step "autostart: $id"
+}
+if [ "${#OHMAGUB_AUTOSTART_APPS[@]}" -gt 0 ] && is_desktop; then
+  for app in "${OHMAGUB_AUTOSTART_APPS[@]}"; do autostart_add "$app"; done
+  ok "autostart entries written to ~/.config/autostart"
+fi
+
 # Tactile gap size (schema ships inside the extension).
 tactile_schema="$HOME/.local/share/gnome-shell/extensions/tactile@lundal.io/schemas"
 if [ -d "$tactile_schema" ]; then
