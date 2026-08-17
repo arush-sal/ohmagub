@@ -123,11 +123,12 @@ else
     # v3 asset names are FiraCodeNerdFont*-*.ttf; older ones were FiraCode*.ttf.
     mapfile -d '' faces < <(find "$tmp/FiraCode" -type f -iname 'Fira*.tt[fc]' ! -iname '*windows*' -print0)
     [ "${#faces[@]}" -gt 0 ] && cp -f "${faces[@]}" "$fontdir/"
-    # fc-cache exits non-zero for trouble in ANY font dir (unparseable file,
-    # stale cache) — nothing to do with this font. Never let that kill the
-    # phase, and never silence it either: >/dev/null 2>&1 with no guard is how
-    # this block used to die with no output at all.
-    if ! fc_out="$(fc-cache -f 2>&1)"; then
+    # Scope the rebuild to the dir we just wrote. A bare `fc-cache -f` walks the
+    # system dirs too and fails with "/usr/share/fonts/truetype: failed to write
+    # cache" as an unprivileged user — those caches belong to root and are
+    # maintained by the fontconfig apt trigger. Keep the guard regardless: this
+    # must never abort the phase, and never be silenced.
+    if ! fc_out="$(fc-cache -f "$fontdir" 2>&1)"; then
       warn "fc-cache reported a problem (fonts may still be fine): ${fc_out##*$'\n'}"
     fi
     if [ "${#faces[@]}" -eq 0 ]; then
