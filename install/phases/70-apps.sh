@@ -100,21 +100,35 @@ for app in "${OHMAGUB_DESKTOP_APPS[@]}"; do install_app "$app"; done
 # --- fonts (setup.sh install_fonts) ----------------------------------------
 step "fonts"
 apt_install fonts-firacode fonts-noto-color-emoji fonts-noto-mono fonts-font-awesome fontconfig
-if ! fc-list | grep -qi "FiraCode Nerd Font"; then
+# Capture instead of piping into `grep -q`: grep exits at the first match, the
+# resulting SIGPIPE makes fc-list exit 141, and under `set -o pipefail` that
+# turns the whole check into a false "missing" every single run.
+have_nerd_font() { case " $(fc-list 2>/dev/null || true) " in *"FiraCode Nerd Font"*) return 0 ;; *) return 1 ;; esac; }
+
+if have_nerd_font; then
+  ok "FiraCode Nerd Font present"
+else
   step "FiraCode Nerd Font"
   tmp="$(mktemp -d)"
-  if fetch "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip" "$tmp/FiraCode.zip"; then
+  if ! fetch "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip" "$tmp/FiraCode.zip"; then
+    warn "FiraCode Nerd Font: download failed (offline? GitHub unreachable?)"
+  elif ! has unzip; then
+    warn "FiraCode Nerd Font: unzip missing — run phase 00 first"
+  else
     unzip -oq "$tmp/FiraCode.zip" -d "$tmp/FiraCode"
     mkdir -p "$HOME/.fonts"
-    find "$tmp/FiraCode" -type f -iname 'Fira*.ttf' ! -iname '*windows*' -exec cp {} "$HOME/.fonts/" \;
+    # v3 asset names are FiraCodeNerdFont*-*.ttf; older ones were FiraCode*.ttf.
+    found="$(find "$tmp/FiraCode" -type f -iname 'Fira*.tt[fc]' ! -iname '*windows*' -print -exec cp {} "$HOME/.fonts/" \; | wc -l)"
     fc-cache -f >/dev/null 2>&1
-    ok "FiraCode Nerd Font installed"
-  else
-    warn "FiraCode Nerd Font download failed"
+    if [ "$found" -gt 0 ] && have_nerd_font; then
+      ok "FiraCode Nerd Font installed ($found faces)"
+    elif [ "$found" -eq 0 ]; then
+      warn "FiraCode Nerd Font: no Fira*.ttf inside the zip — asset layout changed upstream"
+    else
+      warn "FiraCode Nerd Font: copied $found faces but fontconfig still can't see them"
+    fi
   fi
   rm -rf "$tmp"
-else
-  ok "FiraCode Nerd Font present"
 fi
 
 ok "Phase apps complete"
