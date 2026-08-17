@@ -43,6 +43,18 @@ apt_install \
   apt-transport-https software-properties-common build-essential \
   net-tools inetutils-tools jq
 
+# postfix (pulled in by itself and by mailutils) asks for a mail configuration
+# type via debconf. Preseed it: "Local only" — mail stays on this box, no relay
+# and no open SMTP port. Change it later with `dpkg-reconfigure postfix`.
+case " ${OHMAGUB_EXTRA_APT[*]} " in
+  *" postfix "*|*" mailutils "*)
+    debconf_preseed \
+      "postfix postfix/main_mailer_type select Local only" \
+      "postfix postfix/mailname string $(hostname)"
+    step "postfix preseeded: Local only (mailname $(hostname))"
+    ;;
+esac
+
 [ "${#OHMAGUB_EXTRA_APT[@]}" -gt 0 ] && apt_install "${OHMAGUB_EXTRA_APT[@]}"
 
 # --- yq (mikefarah) — apt's 'yq' is the wrong tool, so grab the binary ------

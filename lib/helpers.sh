@@ -46,8 +46,13 @@ ensure_sudo() {
 # apt — batched, quiet, non-interactive, install-only-what's-missing.
 # ---------------------------------------------------------------------------
 export DEBIAN_FRONTEND=noninteractive
+# sudo runs with env_reset, so an exported DEBIAN_FRONTEND does NOT reach
+# apt-get — packages with debconf questions (postfix, mailutils, iperf3...)
+# would open a dialog and hang a TTY-less run. Pass it through explicitly on
+# every apt-get; use APT_SUDO in place of `sudo apt-get`.
+APT_SUDO=(sudo DEBIAN_FRONTEND=noninteractive apt-get)
 _apt_updated=0
-apt_update_once() { [ "$_apt_updated" = "1" ] && return 0; step "apt update"; sudo apt-get update -y -qq; _apt_updated=1; }
+apt_update_once() { [ "$_apt_updated" = "1" ] && return 0; step "apt update"; "${APT_SUDO[@]}" update -y -qq; _apt_updated=1; }
 apt_dirty()       { _apt_updated=0; }
 apt_install() {
   local missing=() want=() p
@@ -65,15 +70,19 @@ apt_install() {
   done
   [ ${#want[@]} -eq 0 ] && return 0
   step "apt install: ${want[*]}"
-  sudo apt-get install -y -qq "${want[@]}"
+  "${APT_SUDO[@]}" install -y -qq "${want[@]}"
 }
-apt_remove() { local p; for p in "$@"; do is_installed "$p" && sudo apt-get remove -y -qq "$p" || true; done; }
+apt_remove() { local p; for p in "$@"; do is_installed "$p" && "${APT_SUDO[@]}" remove -y -qq "$p" || true; done; }
+
+# Preseed debconf answers so a package installs without asking. Values are
+# fed verbatim to debconf-set-selections (one "pkg key type value" per line).
+debconf_preseed() { printf '%s\n' "$@" | sudo debconf-set-selections; }
 
 # ---------------------------------------------------------------------------
 # Downloads
 # ---------------------------------------------------------------------------
 fetch()       { curl -fsSL "$1" -o "$2"; }
-install_deb() { local tmp; tmp="$(mktemp --suffix=.deb)"; step "downloading $(basename "$1")"; fetch "$1" "$tmp"; sudo apt-get install -y -qq "$tmp"; rm -f "$tmp"; }
+install_deb() { local tmp; tmp="$(mktemp --suffix=.deb)"; step "downloading $(basename "$1")"; fetch "$1" "$tmp"; "${APT_SUDO[@]}" install -y -qq "$tmp"; rm -f "$tmp"; }
 # Fetch a single binary to /usr/local/bin (root-owned, executable).
 install_bin() { # install_bin <url> <name>
   step "installing $2"
