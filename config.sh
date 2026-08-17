@@ -77,11 +77,22 @@ OHMAGUB_GNOME_EXTENSIONS=(
   "tophat@fflewddur.github.io"                 # system monitor in top bar
 )
 
+# Extensions that come from apt (not EGO), so they only need enabling.
+OHMAGUB_SYSTEM_EXTENSIONS=(
+  "auto-move-windows@gnome-shell-extensions.gcampax.github.com"  # per-workspace apps
+  "GPaste@gnome-shell-extensions.gnome.org"                      # clipboard history (Super+V)
+)
+
+# Clipboard history popup key (GPaste). GNOME binds Super+V to the message tray
+# by default; phase 80 frees it when it holds this shortcut.
+export OHMAGUB_GPASTE_KEY="${OHMAGUB_GPASTE_KEY:-<Super>v}"
+
 # Per-workspace auto-open app (Auto Move Windows).
-# Key = workspace number (1-9), value = .desktop id.
+# Key = workspace number (1-9), value = one or more space-separated .desktop ids
+# (list both when an app's window can resolve to either id — Chrome does).
 declare -gA OHMAGUB_WORKSPACE_APPS=(
   [1]="org.gnome.Terminal.desktop"
-  [2]="google-chrome.desktop"
+  [2]="google-chrome.desktop com.google.Chrome.desktop"
   [3]="slack_slack.desktop"
   [4]="code.desktop"
   [5]="org.gnome.Nautilus.desktop"

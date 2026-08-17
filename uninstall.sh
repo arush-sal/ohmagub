@@ -16,7 +16,7 @@ ok "removed ohmagub CLI symlink"
 
 # Disable the GNOME extensions ohmagub enabled (leaves them installed).
 if has gnome-extensions; then
-  for uuid in "${OHMAGUB_GNOME_EXTENSIONS[@]}" "auto-move-windows@gnome-shell-extensions.gcampax.github.com"; do
+  for uuid in "${OHMAGUB_GNOME_EXTENSIONS[@]}" "${OHMAGUB_SYSTEM_EXTENSIONS[@]}"; do
     gnome-extensions disable "$uuid" >/dev/null 2>&1 || true
   done
   ok "disabled ohmagub GNOME extensions"
@@ -26,6 +26,8 @@ fi
 if has gsettings; then
   gsettings reset org.gnome.shell.extensions.auto-move-windows application-list >/dev/null 2>&1 || true
   gsettings reset org.gnome.shell favorite-apps >/dev/null 2>&1 || true
+  gsettings reset org.gnome.GPaste show-history >/dev/null 2>&1 || true
+  gsettings reset org.gnome.shell.keybindings toggle-message-tray >/dev/null 2>&1 || true
 fi
 
 # Remove the autostart entries ohmagub copied in.

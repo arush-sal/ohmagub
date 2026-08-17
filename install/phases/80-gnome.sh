@@ -94,15 +94,34 @@ for uuid in "${OHMAGUB_GNOME_EXTENSIONS[@]}"; do
   step "install $uuid"
   gext install "$uuid" >/dev/null 2>&1 || warn "  no EGO build for $uuid on this GNOME yet — skipped"
 done
-# enable everything we installed + auto-move-windows
-for uuid in "${OHMAGUB_GNOME_EXTENSIONS[@]}"; do gnome-extensions enable "$uuid" >/dev/null 2>&1 || true; done
-gnome-extensions enable "auto-move-windows@gnome-shell-extensions.gcampax.github.com" >/dev/null 2>&1 || true
+# enable everything we installed, plus the apt-shipped ones (auto-move-windows,
+# GPaste) — those are installed by phases 80/70 and only need enabling.
+for uuid in "${OHMAGUB_GNOME_EXTENSIONS[@]}" "${OHMAGUB_SYSTEM_EXTENSIONS[@]}"; do
+  ext_enable "$uuid"
+done
 
-# Auto Move Windows: build application-list from the workspace map.
+# GPaste: clipboard history on Super+V. Its keys are single strings, not the
+# string arrays the WM keybindings use.
+gset org.gnome.GPaste show-history "${OHMAGUB_GPASTE_KEY}"
+# GNOME 46+ ships toggle-message-tray as ['<Super>v', '<Super>m'], which would
+# swallow the GPaste key. Drop Super+V, keep Super+M.
+tray="$(gsettings get org.gnome.shell.keybindings toggle-message-tray 2>/dev/null || echo '')"
+case "$tray" in
+  *"<Super>v"*)
+    gset org.gnome.shell.keybindings toggle-message-tray "['<Super>m']"
+    step "freed <Super>v from the message tray"
+    ;;
+esac
+ok "GPaste history -> ${OHMAGUB_GPASTE_KEY}"
+
+# Auto Move Windows: build application-list from the workspace map. A map value
+# may hold several ids (Chrome resolves to either google-chrome.desktop or
+# com.google.Chrome.desktop depending on how the window was launched).
 if [ "${#OHMAGUB_WORKSPACE_APPS[@]}" -gt 0 ]; then
   applist="["
   for ws in $(printf '%s\n' "${!OHMAGUB_WORKSPACE_APPS[@]}" | sort -n); do
-    applist+="'${OHMAGUB_WORKSPACE_APPS[$ws]}:$ws', "
+    # shellcheck disable=SC2086  # deliberate split: one entry per .desktop id
+    for app in ${OHMAGUB_WORKSPACE_APPS[$ws]}; do applist+="'$app:$ws', "; done
   done
   applist="${applist%, }]"
   gset org.gnome.shell.extensions.auto-move-windows application-list "$applist"
@@ -159,7 +178,17 @@ if [ -f "$REPO/gnome/gnome-terminal-profiles.dconf" ] && is_desktop; then
   step "loading your GNOME Terminal profile"
   dconf load /org/gnome/terminal/legacy/profiles:/ < "$REPO/gnome/gnome-terminal-profiles.dconf"
   gset org.gnome.Terminal.Legacy.Settings default-show-menubar false
-  ok "terminal profile loaded"
+  # The dump carries `list` but no `default`, so gnome-terminal keeps opening
+  # the stock profile and the custom-command/colors never apply. Point default
+  # at the first profile in the list.
+  prof="$(gsettings get org.gnome.Terminal.ProfilesList list 2>/dev/null || echo '')"
+  uuid="$(printf '%s' "$prof" | tr -d "[]' " | cut -d, -f1)"
+  if [ -n "$uuid" ]; then
+    gset org.gnome.Terminal.ProfilesList default "$uuid"
+    ok "terminal profile loaded, default -> $uuid"
+  else
+    warn "terminal profile loaded but no profile UUID found — default unchanged"
+  fi
 else
   warn "no gnome-terminal-profiles.dconf in your dotfiles — skipping terminal profile"
 fi

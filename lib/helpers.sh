@@ -130,6 +130,22 @@ gset() {
 }
 dconf_load() { is_desktop || return 0; dconf load "$1" < "$2"; }
 
+# Enable a GNOME Shell extension. `gnome-extensions enable` fails for an
+# extension the running shell hasn't scanned yet (anything apt-installed during
+# this same run), so fall back to writing the UUID into enabled-extensions —
+# gnome-shell picks it up at the next login either way.
+ext_enable() { # ext_enable <uuid>
+  is_desktop || return 0
+  if gnome-extensions enable "$1" >/dev/null 2>&1; then step "enabled $1"; return 0; fi
+  local cur="$(gsettings get org.gnome.shell enabled-extensions 2>/dev/null || echo '@as []')"
+  case "$cur" in *"'$1'"*) step "already enabled: $1"; return 0 ;; esac
+  cur="${cur#@as }"
+  [ "$cur" = "[]" ] && cur="['$1']" || cur="${cur%]}, '$1']"
+  gsettings set org.gnome.shell enabled-extensions "$cur" 2>/dev/null \
+    && step "enabled $1 (via enabled-extensions)" \
+    || warn "could not enable $1"
+}
+
 # ---------------------------------------------------------------------------
 # File helpers
 # ---------------------------------------------------------------------------
